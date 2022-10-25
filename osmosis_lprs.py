@@ -25,7 +25,6 @@ import plotly.graph_objects as go
 
 import networkx as nx
 
-try:
 st.set_page_config(
         page_title="Osmosis - Liquidity whales ",
         page_icon=":atom_symbol:",
