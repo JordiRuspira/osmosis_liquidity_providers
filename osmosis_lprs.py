@@ -25,7 +25,7 @@ import plotly.graph_objects as go
 
 import networkx as nx
 
-
+try:
 st.set_page_config(
         page_title="Osmosis - Liquidity whales ",
         page_icon=":atom_symbol:",
@@ -309,7 +309,7 @@ pool_choice = 'ATOM-OSMO'
 pool_choice_id = 1
     
 
-st.success("This app serves as an addition from [this Flipside dashboard](https://app.flipsidecrypto.com/velocity/dashboard/untitled-board-yGbpMf). For further context and explanation, please refer to that link!")
+st.success("This app serves as an addition from [this Flipside dashboard](https://app.flipsidecrypto.com/dashboard/osmosis-liquidity-providers-is-liquidity-concentrated-yGbpMf). For further context and explanation, please refer to that link!")
 
 st.success("You can select a pool from the dropdown below, and the gauge chart will show the top 30 wallets liquidity from said pool.")
 
