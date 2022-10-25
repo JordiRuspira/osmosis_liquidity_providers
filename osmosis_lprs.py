@@ -19,7 +19,6 @@ import numpy as np
 from plotly.subplots import make_subplots
 from PIL import Image 
 import datetime 
-import pyautogui
 import plotly.graph_objs as go
 
 import plotly.graph_objects as go
