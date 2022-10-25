@@ -371,7 +371,7 @@ st.download_button(
 st.write("")
 st.subheader('Total holdings from the top 30 wallets of all pools')
 st.write("")
-st.write("Currently, if we sum all the liquidity currently being provided by the top 30 liquidity providers of each pool, we get more than $100M. Given that there is actually $210M in liquidity on Osmosis, it's save to say that almost half of all the liquidity on Osmosis is provided by the top 30 individuals of all pools.")
+st.write("Currently, if we sum all the liquidity currently being provided by the top 30 liquidity providers of each pool, we get more than 100M USD. Given that there is actually 210M USD in liquidity on Osmosis, it's save to say that almost half of all the liquidity on Osmosis is provided by the top 30 individuals of all pools.")
 total_holdings = pd.merge(Inner_join_2, df_all_pools[['symbol','POOL_ID','amount','price']],  how='left', left_on=['POOL_ID','symbol'], right_on = ['POOL_ID','symbol'])
 total_holdings['usd'] = total_holdings['amount_token']*total_holdings['price']
 
