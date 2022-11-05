@@ -49,34 +49,13 @@ im_col3.image(
 ) 
 
  
-st.text("")
-st.subheader('Dashboard by [Jordi R](https://twitter.com/RuspiTorpi/). Powered by Flipsidecrypto & Imperator')
-st.text("")
-   
-st.markdown(
-            f"""
-    <style>
-        .reportview-container .main .block-container{{
-            max-width: 90%;
-            padding-top: 5rem;
-            padding-right: 5rem;
-            padding-left: 5rem;
-            padding-bottom: 5rem;
-        }}
-        img{{
-        	max-width:40%;
-        	margin-bottom:40px;
-        }}
-    </style>
-    """,
-            unsafe_allow_html=True,
-        ) 
 pio.renderers.default = 'browser'
     
     
     
     
 API_KEY = st.secrets["API_KEY"]
+
     
 SQL_QUERY_0 = """  with all_lp_action as (select pool_id, action, currency, sum(amount/pow(10, decimal)) as amount_translated, case when action = 'lp_tokens_minted' then amount_translated else amount_translated*(-1) end as amount_translated_2 from osmosis.core.fact_liquidity_provider_actions
             where tx_status = 'SUCCEEDED'
@@ -95,7 +74,6 @@ SQL_QUERY_1 = """  with all_lp_action_address as (
             
             select pool_id,liquidity_provider_address, sum(amount_translated_2) as total_shares_lp_address from all_lp_action_address 
             group by pool_id,liquidity_provider_address
-
             
                 """  
 SQL_QUERY_2_AUX = """ with all_lp_action_address as (
@@ -125,30 +103,23 @@ select pool_id, liquidity_provider_address, action, currency, sum(amount/pow(10,
 where tx_status = 'SUCCEEDED'
 and action in ('lp_tokens_minted','lp_tokens_burned')
 group by pool_id,liquidity_provider_address, action, currency),
-
-
 all_lp_action as (select pool_id, action, currency, sum(amount/pow(10, decimal)) as amount_translated, case when action = 'lp_tokens_minted' then amount_translated else amount_translated*(-1) end as amount_translated_2 from osmosis.core.fact_liquidity_provider_actions
 where tx_status = 'SUCCEEDED'
 and action in ('lp_tokens_minted','lp_tokens_burned')
 group by pool_id, action, currency),
-
 all_lp_amount as (          
 select pool_id, sum(amount_translated_2) as total_gamm_pool from all_lp_action
 group by pool_id),
-
 final_table as (            
 select pool_id,liquidity_provider_address, sum(amount_translated_2) as total_shares_lp_address from all_lp_action_address a 
 group by pool_id,liquidity_provider_address),
-
 last_final_table as (
 select a.pool_id, liquidity_provider_address, total_shares_lp_address/total_gamm_pool as percentage_over_pool, row_number() over (partition by a.pool_id order by percentage_over_pool desc)  as rank from final_table a 
 left join all_lp_amount b 
 on a.pool_id = b.pool_id
 --where a.pool_id in ('1','678')
-
 where a.pool_id not in (select distinct pool_id from all_lp_amount where total_gamm_pool = 0)
 order by rank desc )
-
 select * from last_final_table
 where rank <= 30
             
@@ -161,17 +132,13 @@ select pool_id, liquidity_provider_address, action, currency, sum(amount/pow(10,
 where tx_status = 'SUCCEEDED'
 and action in ('lp_tokens_minted','lp_tokens_burned')
 group by pool_id,liquidity_provider_address, action, currency),
-
-
 all_lp_action as (select pool_id, action, currency, sum(amount/pow(10, decimal)) as amount_translated, case when action = 'lp_tokens_minted' then amount_translated else amount_translated*(-1) end as amount_translated_2 from osmosis.core.fact_liquidity_provider_actions
 where tx_status = 'SUCCEEDED'
 and action in ('lp_tokens_minted','lp_tokens_burned')
 group by pool_id, action, currency),
-
 all_lp_amount as (          
 select pool_id, sum(amount_translated_2) as total_gamm_pool from all_lp_action
 group by pool_id),
-
 final_table as (            
 select pool_id,liquidity_provider_address, sum(amount_translated_2) as total_shares_lp_address from all_lp_action_address a 
 group by pool_id,liquidity_provider_address),
@@ -182,12 +149,9 @@ left join all_lp_amount b
 on a.pool_id = b.pool_id 
 where a.pool_id not in (select distinct pool_id from all_lp_amount where total_gamm_pool = 0)
 order by rank desc ),
-
 last_final_table_2 as (
-
 select * from last_final_table
 where rank <= 30)
-
 select pool_id, sum(percentage_over_pool)*100 as top_30_holders_percentage from last_final_table_2
 group by pool_id
     
@@ -308,13 +272,35 @@ pool_choice = 'ATOM-OSMO'
 pool_choice_id = 1
     
 
+st.title("Osmosis liquidity - a deep dive user interactive dashboard")
+st.text("")
 st.success("This app serves as an addition from [this Flipside dashboard](https://app.flipsidecrypto.com/dashboard/osmosis-liquidity-providers-is-liquidity-concentrated-yGbpMf). For further context and explanation, please refer to that link!")
+st.text("")
+st.subheader('Dashboard by [Jordi R](https://twitter.com/RuspiTorpi/). Powered by Flipsidecrypto & Imperator')
+st.text("")
+st.header("1. Introduction")   
+st.text("")
+st.markdown("Osmosis is home to the leading DEX appchain on Cosmos and the most active zone, as the go-to place for users looking for a window to the rest of app-chains. So how is liquidity distributed amongst the pools? Is it concentrated within a few whales, are whales in a pool also big contributors on other pools? This dashboard pretends to be a tool to explore precisely this information.")
+st.text("") 
+st.header("2. Liquidity concentration")
+st.text("") 
+st.subheader("2.1. Gauge indicator as a tool")
+st.text("")
+st.markdown("It's not a secret that a big flaw on most DEXs in the blockchain ecosystem is the constant lookout for bigger returns by users. Once a new DEX with higher returns appears, there's always a big move in liquidity from other platforms to the new one. This might be even a bigger issue for DEXs which have liquidity concentrated within a few users. On one hand, it might be easier for them to move outside the platform once higher return pools appear, but since they'd hold much liquidity, it would also mean that they cannot exit a pool without having to pay a high slippage, so it's a double edged sword in this case. ")
+st.text("")
+st.markdown("I've created a few tools to help regular users understand and visualize how concetrated liquidity is in a pool of their choice.")
 
-st.success("You can select a pool from the dropdown below, and the gauge chart will show the top 30 wallets liquidity from said pool.")
+
+commentaryCol, chartCol = st.columns((3,6))
+
+
+pool_choice = commentaryCol.selectbox("Select a pool", options = pairs['pair'].unique() )
+pool_choice_id = pairs['POOL_ID'][pairs['pair'] == str(pool_choice)].to_string(index=False)
+commentaryCol.markdown("By selecting a pool of your choice in the selection box above, the chart on the right hand side will change accordingly.")
+commentaryCol.markdown("")
+commentaryCol.markdown("More specifically, the chart will show how much of the total liquidity of the selected pool is currently held by the top 30 liquidity providers of said pool.")
 
 #Values change once selected
-pool_choice = st.selectbox("Select a pool", options = pairs['pair'].unique() )
-pool_choice_id = pairs['POOL_ID'][pairs['pair'] == str(pool_choice)].to_string(index=False)
     
 top30_percentage = df4['TOP_30_HOLDERS_PERCENTAGE'][df4['POOL_ID'] == int(pool_choice_id)]
 
@@ -330,7 +316,7 @@ fig = go.Figure(go.Indicator(
         'shape': "angular",
         'axis': {'range': [0, 100]}}))
      
-st.plotly_chart(fig, use_container_width=True) 
+chartCol.plotly_chart(fig, use_container_width=True) 
      
 
 df3_filtered = df3[['POOL_ID','LIQUIDITY_PROVIDER_ADDRESS','PERCENTAGE_OVER_POOL','RANK']][df3['POOL_ID'] == int(pool_choice_id)]
@@ -338,11 +324,21 @@ df3_filtered['PERCENTAGE_OVER_POOL'] = df3_filtered['PERCENTAGE_OVER_POOL']*100
 df3_filtered = df3_filtered.sort_values(by ='RANK', ascending = True)
 
   
+chartCol2, commentaryCol2 = st.columns((5,4))
+
 
  
 fig = px.bar(df3_filtered, x='LIQUIDITY_PROVIDER_ADDRESS', y='PERCENTAGE_OVER_POOL', title="Address and its liquidity percentage of all the selected pool",
         height=1000)
-st.plotly_chart(fig, use_container_width=True) 
+chartCol2.plotly_chart(fig, use_container_width=True) 
+
+commentaryCol2.text("")
+commentaryCol2.text("")
+commentaryCol2.text("")
+commentaryCol2.markdown("Meanwhile, the chart on the left hand side gives more insight on the individual wallets that add up for the total percentage displayed above. Showing the amount in percentage held by each user from the top 30 liquidity providers shows even more info on another layer of liquidity concentration.")
+commentaryCol2.text("")
+commentaryCol2.markdown("There might be one or a few addresses that stand out from the rest, or they might all hold similar amounts.")
+commentaryCol2.text("")
 
 Inner_join_2_filtered = Inner_join_2[['symbol','POOL_ID','LIQUIDITY_PROVIDER_ADDRESS','PERCENTAGE_OVER_POOL','amount_token','RANK']][Inner_join_2['POOL_ID'] == int(pool_choice_id)]
 Inner_join_2_filtered = Inner_join_2_filtered.sort_values(by ='RANK', ascending = True)
@@ -509,4 +505,3 @@ new_df_grouped_2 = pd.merge(new_df_grouped_2[['POOL_ID','PERCENTAGE_OVER_POOL']]
 new_df_grouped_2 = new_df_grouped_2.sort_values(by ='PERCENTAGE_OVER_POOL', ascending = False)
 fig = px.bar(new_df_grouped_2, x='pair', y='PERCENTAGE_OVER_POOL', hover_data =['POOL_ID']) 
 col2.plotly_chart(fig, use_container_width=True) 
- 
