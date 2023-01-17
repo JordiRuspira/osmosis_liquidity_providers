@@ -444,10 +444,7 @@ new_df['PERCENTAGE_OVER_POOL'] = new_df['PERCENTAGE_OVER_POOL']*100
  
 
 new_df_grouped = new_df.groupby(by=["POOL_ID"]).sum().reset_index(drop=False)
-pairs['POOL_ID'] = pairs['POOL_ID'].astype(str)
-pairs.loc[pairs['POOL_ID'] == '877', 'pair'] = 'BUSD-USDC-USDT'
-pairs.loc[pairs['POOL_ID'] == '679', 'pair'] = 'FRAX-USDT-USTC-USDC'
-pairs['pair'] = pairs.apply(lambda x: str(x['POOL_ID']) + "-" + x['pair'], axis=1)
+pairs['POOL_ID'] = pairs['POOL_ID'].astype(str) 
 new_df_grouped['POOL_ID'] = new_df_grouped['POOL_ID'].astype(str)
 new_df_grouped = pd.merge(new_df_grouped[['POOL_ID','PERCENTAGE_OVER_POOL']], 
                          pairs, 
