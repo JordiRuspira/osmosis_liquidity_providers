@@ -58,7 +58,7 @@ API_KEY = st.secrets["API_KEY"]
 
     
 SQL_QUERY_0 = """  with all_lp_action as (select pool_id, action, currency, sum(amount/pow(10, decimal)) as amount_translated, case when action = 'lp_tokens_minted' then amount_translated else amount_translated*(-1) end as amount_translated_2 from osmosis.core.fact_liquidity_provider_actions
-            where tx_status = 'SUCCEEDED'
+            where TX_SUCCEEDED = 'TRUE'
             and action in ('lp_tokens_minted','lp_tokens_burned')
             group by pool_id, action, currency)
             
@@ -68,7 +68,7 @@ SQL_QUERY_0 = """  with all_lp_action as (select pool_id, action, currency, sum(
                 """  
 SQL_QUERY_1 = """  with all_lp_action_address as (
             select pool_id, liquidity_provider_address, action, currency, sum(amount/pow(10, decimal)) as amount_translated, case when action = 'lp_tokens_minted' then amount_translated else amount_translated*(-1) end as amount_translated_2 from osmosis.core.fact_liquidity_provider_actions
-            where tx_status = 'SUCCEEDED'
+            where TX_SUCCEEDED = 'TRUE'
             and action in ('lp_tokens_minted','lp_tokens_burned')
             group by pool_id,liquidity_provider_address, action, currency)
             
@@ -78,13 +78,13 @@ SQL_QUERY_1 = """  with all_lp_action_address as (
                 """  
 SQL_QUERY_2_AUX = """ with all_lp_action_address as (
             select pool_id, liquidity_provider_address, action, currency, sum(amount/pow(10, decimal)) as amount_translated, case when action = 'lp_tokens_minted' then amount_translated else amount_translated*(-1) end as amount_translated_2 from osmosis.core.fact_liquidity_provider_actions
-            where tx_status = 'SUCCEEDED'
+            where TX_SUCCEEDED = 'TRUE'
             and action in ('lp_tokens_minted','lp_tokens_burned')
             group by pool_id,liquidity_provider_address, action, currency),
             
             
             all_lp_action as (select pool_id, action, currency, sum(amount/pow(10, decimal)) as amount_translated, case when action = 'lp_tokens_minted' then amount_translated else amount_translated*(-1) end as amount_translated_2 from osmosis.core.fact_liquidity_provider_actions
-            where tx_status = 'SUCCEEDED'
+            where TX_SUCCEEDED = 'TRUE'
             and action in ('lp_tokens_minted','lp_tokens_burned')
             group by pool_id, action, currency),
             
@@ -100,11 +100,11 @@ SQL_QUERY_2_AUX = """ with all_lp_action_address as (
     
 SQL_QUERY_3 = """ with all_lp_action_address as (
 select pool_id, liquidity_provider_address, action, currency, sum(amount/pow(10, decimal)) as amount_translated, case when action = 'lp_tokens_minted' then amount_translated else amount_translated*(-1) end as amount_translated_2 from osmosis.core.fact_liquidity_provider_actions
-where tx_status = 'SUCCEEDED'
+where TX_SUCCEEDED = 'TRUE'
 and action in ('lp_tokens_minted','lp_tokens_burned')
 group by pool_id,liquidity_provider_address, action, currency),
 all_lp_action as (select pool_id, action, currency, sum(amount/pow(10, decimal)) as amount_translated, case when action = 'lp_tokens_minted' then amount_translated else amount_translated*(-1) end as amount_translated_2 from osmosis.core.fact_liquidity_provider_actions
-where tx_status = 'SUCCEEDED'
+where TX_SUCCEEDED = 'TRUE'
 and action in ('lp_tokens_minted','lp_tokens_burned')
 group by pool_id, action, currency),
 all_lp_amount as (          
@@ -129,11 +129,11 @@ where rank <= 30
 SQL_QUERY_4 = """
     with all_lp_action_address as (
 select pool_id, liquidity_provider_address, action, currency, sum(amount/pow(10, decimal)) as amount_translated, case when action = 'lp_tokens_minted' then amount_translated else amount_translated*(-1) end as amount_translated_2 from osmosis.core.fact_liquidity_provider_actions
-where tx_status = 'SUCCEEDED'
+where TX_SUCCEEDED = 'TRUE'
 and action in ('lp_tokens_minted','lp_tokens_burned')
 group by pool_id,liquidity_provider_address, action, currency),
 all_lp_action as (select pool_id, action, currency, sum(amount/pow(10, decimal)) as amount_translated, case when action = 'lp_tokens_minted' then amount_translated else amount_translated*(-1) end as amount_translated_2 from osmosis.core.fact_liquidity_provider_actions
-where tx_status = 'SUCCEEDED'
+where TX_SUCCEEDED = 'TRUE'
 and action in ('lp_tokens_minted','lp_tokens_burned')
 group by pool_id, action, currency),
 all_lp_amount as (          
