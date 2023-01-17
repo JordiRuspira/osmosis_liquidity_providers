@@ -294,7 +294,9 @@ st.markdown("I've created a few tools to help regular users understand and visua
 
 commentaryCol, chartCol = st.columns((3,6))
 
-
+pairs.loc[pairs['POOL_ID'] == '877', 'pair'] = 'BUSD-USDC-USDT'
+pairs.loc[pairs['POOL_ID'] == '679', 'pair'] = 'FRAX-USDT-USTC-USDC'
+pairs['pair'] = pairs.apply(lambda x: str(x['POOL_ID']) + "-" + x['pair'], axis=1)
 pool_choice = commentaryCol.selectbox("Select a pool", options = pairs['pair'].unique() )
 pool_choice_id = pairs['POOL_ID'][pairs['pair'] == str(pool_choice)].to_string(index=False)
 commentaryCol.markdown("By selecting a pool of your choice in the selection box above, the chart on the right hand side will change accordingly.")
