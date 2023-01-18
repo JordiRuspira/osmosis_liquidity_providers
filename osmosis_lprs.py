@@ -231,7 +231,11 @@ for i in range(0, len(pairs_summary_data),1):
     pairs.append(d)
         
 pairs = pd.DataFrame(pairs)
-     
+
+new_rows = pd.DataFrame({'POOL_ID': [633, 818], 'pair': ['USDC.grv-OSMO', 'USDT.grv-OSMO'], 'volume_api': ['https://api-osmosis.imperator.co/pools/v2/volume/633/chart', 'https://api-osmosis.imperator.co/pools/v2/volume/818/chart'], 'liquidity_api': ['https://api-osmosis.imperator.co/pools/v2/633', 'https://api-osmosis.imperator.co/pools/v2/818']})
+
+# concatenate the new dataframe with the original dataframe
+pairs = pd.concat([pairs, new_rows], ignore_index=True)     
    
 query = create_query(SQL_QUERY_3)
 token = query.get('token')
