@@ -73,7 +73,7 @@ pio.renderers.default = 'browser'
 sdk = ShroomDK("3b5afbf4-3004-433c-9b04-2e867026718b")
 st.cache(suppress_st_warning=True)  
 
-st.set_page_config(page_title=":atom_symbol: Osmosis Governance :atom_symbol:", layout="wide",initial_sidebar_state="collapsed")
+#st.set_page_config(page_title=":atom_symbol: Osmosis Governance :atom_symbol:", layout="wide",initial_sidebar_state="collapsed")
 
     
 SQL_QUERY_0 = """  with all_lp_action as (select pool_id[0] as pool_id, action, currency, sum(amount/pow(10, decimal)) as amount_translated, case when action = 'lp_tokens_minted' then amount_translated else amount_translated*(-1) end as amount_translated_2 from osmosis.core.fact_liquidity_provider_actions
