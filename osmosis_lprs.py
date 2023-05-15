@@ -68,10 +68,7 @@ im_col3.image(
  
 pio.renderers.default = 'browser'
     
-    
-    
-    
-API_KEY = st.secrets["API_KEY"]
+     
 
 sdk = ShroomDK("3b5afbf4-3004-433c-9b04-2e867026718b")
 st.cache(suppress_st_warning=True)  
