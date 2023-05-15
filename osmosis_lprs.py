@@ -56,6 +56,10 @@ pio.renderers.default = 'browser'
     
 API_KEY = st.secrets["API_KEY"]
 
+sdk = ShroomDK("3b5afbf4-3004-433c-9b04-2e867026718b")
+st.cache(suppress_st_warning=True)  
+
+st.set_page_config(page_title=":atom_symbol: Osmosis Governance :atom_symbol:", layout="wide",initial_sidebar_state="collapsed")
 
     
 SQL_QUERY_0 = """  with all_lp_action as (select pool_id[0] as pool_id, action, currency, sum(amount/pow(10, decimal)) as amount_translated, case when action = 'lp_tokens_minted' then amount_translated else amount_translated*(-1) end as amount_translated_2 from osmosis.core.fact_liquidity_provider_actions
@@ -157,57 +161,20 @@ select pool_id, sum(percentage_over_pool)*100 as top_30_holders_percentage from 
 group by pool_id
     
     """
-TTL_MINUTES = 15
-# return up to 100,000 results per GET request on the query id
-PAGE_SIZE = 100000
-# return results of page 1
-PAGE_NUMBER = 1
+
+st.experimental_memo(ttl=1000000)
+@st.experimental_memo
+def compute(a):
+    results=sdk.query(a)
+    return results
+  
+query = compute(SQL_QUERY_0) 
+df0 = pd.DataFrame(query.records)    
     
-def create_query(SQL_QUERY):
-    r = requests.post(
-            'https://node-api.flipsidecrypto.com/queries', 
-            data=json.dumps({
-                "sql": SQL_QUERY,
-                "ttlMinutes": TTL_MINUTES
-            }),
-            headers={"Accept": "application/json", "Content-Type": "application/json", "x-api-key": API_KEY},
-    )
-    if r.status_code != 200:
-        raise Exception("Error creating query, got response: " + r.text + "with status code: " + str(r.status_code))
-        
-    return json.loads(r.text)    
-       
-    
-def get_query_results(token):
-    r = requests.get(
-            'https://node-api.flipsidecrypto.com/queries/{token}?pageNumber={page_number}&pageSize={page_size}'.format(
-              token=token,
-              page_number=PAGE_NUMBER,
-              page_size=PAGE_SIZE
-            ),
-            headers={"Accept": "application/json", "Content-Type": "application/json", "x-api-key": API_KEY}
-    )
-    if r.status_code != 200:
-        raise Exception("Error getting query results, got response: " + r.text + "with status code: " + str(r.status_code))
-        
-    data = json.loads(r.text)
-    if data['status'] == 'running':
-        time.sleep(10)
-        return get_query_results(token)
-    
-    return data
-    
-query = create_query(SQL_QUERY_0)
-token = query.get('token')
-data0 = get_query_results(token) 
-df0 = pd.DataFrame(data0['results'], columns = ['POOL_ID', 'TOTAL_GAMM_POOL'])  
-    
-query = create_query(SQL_QUERY_1)
-token = query.get('token')
-data1 = get_query_results(token) 
-df1 = pd.DataFrame(data1['results'], columns = ['POOL_ID', 'LIQUIDITY_PROVIDER_ADDRESS','TOTAL_GAMM_POOL'])  
-    
-    
+
+query = compute(SQL_QUERY_1) 
+df1 = pd.DataFrame(query.records)   
+ 
     
 
     
@@ -235,13 +202,12 @@ pairs = pd.DataFrame(pairs)
 new_rows = pd.DataFrame({'POOL_ID': [633, 818], 'pair': ['USDC.grv-OSMO', 'USDT.grv-OSMO'], 'volume_api': ['https://api-osmosis.imperator.co/pools/v2/volume/633/chart', 'https://api-osmosis.imperator.co/pools/v2/volume/818/chart'], 'liquidity_api': ['https://api-osmosis.imperator.co/pools/v2/633', 'https://api-osmosis.imperator.co/pools/v2/818']})
 
 # concatenate the new dataframe with the original dataframe
-pairs = pd.concat([pairs, new_rows], ignore_index=True)     
-   
-query = create_query(SQL_QUERY_3)
-token = query.get('token')
-data3 = get_query_results(token) 
-df3 = pd.DataFrame(data3['results'], columns = ['POOL_ID', 'LIQUIDITY_PROVIDER_ADDRESS','PERCENTAGE_OVER_POOL','RANK'])  
-     
+pairs = pd.concat([pairs, new_rows], ignore_index=True)    
+
+ 
+query = compute(SQL_QUERY_3) 
+df3 = pd.DataFrame(query.records)   
+  
  
 
 test_json = requests.get('https://api-osmosis.imperator.co/pools/v2/all?low_liquidity=true').json()
@@ -266,11 +232,16 @@ Inner_join_2 = pd.merge(df_all_pools[['symbol','POOL_ID','amount']],
 Inner_join_2['amount_token'] = Inner_join_2['PERCENTAGE_OVER_POOL']*Inner_join_2['amount']
     
      
+st.experimental_memo(ttl=1000000)
+@st.experimental_memo
+def compute2(a):
+    results=sdk.query(a)
+    return results
+  
+query = compute2(SQL_QUERY_4) 
+df4 = pd.DataFrame(query.records)    
     
-query = create_query(SQL_QUERY_4)
-token = query.get('token')
-data4 = get_query_results(token) 
-df4 = pd.DataFrame(data4['results'], columns = ['POOL_ID', 'TOP_30_HOLDERS_PERCENTAGE'])  
+       
       
 #Default values
 pool_choice = 'ATOM-OSMO'
@@ -395,12 +366,17 @@ input_feature = st.text_input('Introduce wallet address: ','osmo1s3uhtyzcu2ft4w2
     
 SQL_QUERY_2 = SQL_QUERY_2_AUX+ input_feature + "' group by pool_id,liquidity_provider_address) select a.pool_id, liquidity_provider_address, total_shares_lp_address/total_gamm_pool as percentage_over_pool from final_table a  left join all_lp_amount b  on a.pool_id = b.pool_id  " 
     
+
+st.experimental_memo(ttl=1000000)
+@st.experimental_memo
+def compute3(a):
+    results=sdk.query(a)
+    return results
   
-query = create_query(SQL_QUERY_2)
-token = query.get('token')
-data2 = get_query_results(token) 
-df2 = pd.DataFrame(data2['results'], columns = ['POOL_ID', 'LIQUIDITY_PROVIDER_ADDRESS','PERCENTAGE_OVER_POOL'])  
-   
+query = compute3(SQL_QUERY_2) 
+df2 = pd.DataFrame(query.records)    
+    
+ 
 
 Inner_join = pd.merge(df_all_pools[['symbol','POOL_ID','amount','price']], 
                          df2, 
