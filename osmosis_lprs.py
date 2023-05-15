@@ -40,8 +40,7 @@ import matplotlib.ticker as ticker
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
-
-import networkx as nx
+ 
 
 st.set_page_config(
         page_title="Osmosis - Liquidity whales ",
